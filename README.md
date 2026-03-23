@@ -15,7 +15,7 @@ Hold hotkey ──> Microphone records ──> Release hotkey
                                     speech to text
                                             │
                                             ▼
-                                  LLM cleans up text
+                                  LLM cleans up text          ← skipped with raw hotkey
                                  (grammar, filler words)
                                             │
                                             ▼
@@ -25,9 +25,7 @@ Hold hotkey ──> Microphone records ──> Release hotkey
 The app uses a **client-server architecture**:
 
 - **Server** — Runs Whisper (speech-to-text) on your GPU, then passes the result through an LLM pipeline for post-processing. Can run on a remote machine.
-- **Client** — Captures your hotkey, records audio, sends it to the server, and types the result into whatever app has focus. Available in two flavors:
-  - **GUI client** (`ui`) — PySide6 app with settings panel, debug inspector, audio playback, and system tray. Recommended.
-  - **CLI client** (`client`) — Lightweight headless client with a minimal tkinter overlay. No UI beyond the overlay.
+- **Client** — PySide6 GUI app. Captures your hotkey, records audio, sends it to the server, and types the result into whatever app has focus.
 
 A small overlay appears on your screen: red while recording, orange while processing, green when done.
 
@@ -49,7 +47,7 @@ A small overlay appears on your screen: red while recording, orange while proces
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-user/vocalize.git
+git clone https://github.com/gabriel-sg/vocalize.git
 cd vocalize
 uv sync
 ```
@@ -83,28 +81,31 @@ whisper:
   compute_type: "float16"
   beam_size: 3
   vad_filter: true
+  language: "es"             # Default language (overridden per-hotkey)
 
 hotkey:
-  keys_es: "ctrl+alt+s"      # Hold to record in Spanish
-  keys_en: "ctrl+alt+e"      # Hold to record in English
+  keys_es: "ctrl+alt+s"     # Hold to record in Spanish (with LLM)
+  keys_en: "ctrl+alt+e"     # Hold to record in English (with LLM)
+  keys_raw: "ctrl+alt+z"    # Hold to record without LLM (raw Whisper output)
+  raw_language: "auto"      # Language for raw hotkey: "es", "en", or "auto"
 
 audio:
   sample_rate: 16000
-  channels: 1
-  device_id: null             # null = system default, or set a specific device ID
+  channels: 0               # 0 = auto-detect from device
+  input_gain: 1.0           # Software amplification (1.0 = no change)
 
 pipeline:
   steps:
     - type: "llm_rewrite"
       enabled: true
       params:
-        prompt: "Process the following text. Keep the original language, don't translate. Fix grammar and punctuation. Remove filler words. Output only the cleaned text, nothing else."
-        temperature: 0
+        prompt_file: "prompts/transcription_editor.md"
+        temperature: 0.1
         max_tokens: 512
 
 llm:
   provider: "ollama"
-  model: "gemma3:12b"         # Any model available in Ollama
+  model: "nemotron-3-nano:4b"
   base_url: "http://localhost:11434/v1"
   api_key: "ollama"
 ```
@@ -116,28 +117,25 @@ If no `config.yaml` exists, sensible defaults are used. The GUI client can also 
 The server auto-pulls the configured Ollama model on first startup.
 
 ```bash
-# GUI client (recommended) — start server + PySide6 UI
-uv run ui
-
-# CLI client — start server + headless client
+# Start server + GUI client together (recommended)
 uv run vocalize
 
 # Or start components separately (e.g. server on another machine)
-uv run server
-uv run client    # CLI client only
-uv run ui        # GUI client only (connect to running server)
+uv run server   # server only
+uv run ui       # GUI client only (connects to a running server)
 ```
 
 ### 5. Use it
 
-1. Hold **Ctrl+Alt+S** to record in Spanish, or **Ctrl+Alt+E** for English.
-2. Speak while holding the hotkey.
-3. Release the hotkey — the overlay turns orange while processing.
-4. The transcribed and cleaned text is typed at your cursor position.
+1. Hold **Ctrl+Alt+S** to record in Spanish, or **Ctrl+Alt+E** for English (both run LLM post-processing).
+2. Hold **Ctrl+Alt+Z** to record without LLM — raw Whisper output, any language.
+3. Speak while holding the hotkey.
+4. Release the hotkey — the overlay turns orange while processing.
+5. The transcribed text is typed at your cursor position.
 
 ## GUI Client
 
-The PySide6 GUI client (`ui`) provides:
+The PySide6 GUI client provides:
 
 - **Settings tab** — Change microphone input device, customize hotkeys (with key capture), edit the LLM system prompt, and save configuration without restarting.
 - **Debug tab** — Toggle debug logging to inspect every interaction: play back recorded audio, view raw Whisper output, see each LLM pipeline step (input/output/timing), and the final typed text. History is stored in a local SQLite database (`db/debug.db`).
@@ -169,10 +167,16 @@ The server exposes a REST API, so you can integrate it with other tools:
 # Health check
 curl http://localhost:9876/api/health
 
-# Transcribe an audio file
+# Transcribe an audio file (with LLM post-processing)
 curl -X POST http://localhost:9876/api/transcribe \
   -F "audio=@recording.wav" \
   -F "language=en"
+
+# Transcribe without LLM post-processing
+curl -X POST http://localhost:9876/api/transcribe \
+  -F "audio=@recording.wav" \
+  -F "language=en" \
+  -F "skip_pipeline=true"
 ```
 
 **Response:**
@@ -187,7 +191,7 @@ curl -X POST http://localhost:9876/api/transcribe \
   "steps": [
     {
       "step_type": "llm_rewrite",
-      "model": "gemma3:12b",
+      "model": "nemotron-3-nano:4b",
       "input_text": "raw whisper output",
       "output_text": "cleaned transcription",
       "time_ms": 350
@@ -200,7 +204,6 @@ curl -X POST http://localhost:9876/api/transcribe \
 
 Rotating log files are written to `logs/` in the repo root:
 - `logs/server.log` — server-side events, Whisper/LLM processing
-- `logs/client.log` — CLI client events
 - `logs/client-ui.log` — GUI client events
 - `logs/client-ui-crash.log` — native crash dumps (faulthandler)
 
