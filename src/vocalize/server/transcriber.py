@@ -66,6 +66,55 @@ class Transcriber:
         text = " ".join(seg.text.strip() for seg in segments)
         return text, info.language
 
+    def transcribe_audio(
+        self,
+        audio: np.ndarray,
+        sample_rate: int,
+        language: str | None = None,
+        beam_size: int | None = None,
+    ) -> tuple[str, str]:
+        """Transcribe a float32 numpy array directly, bypassing WAV encode/decode.
+
+        Args:
+            audio: float32 numpy array, mono or stereo. Values in [-1.0, 1.0].
+            sample_rate: Sample rate of the audio array.
+            language: Override language. Falls back to config.language.
+            beam_size: Override beam size. Falls back to config.beam_size.
+
+        Returns:
+            (text, detected_language)
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call load() first.")
+
+        if audio.ndim == 2:
+            audio = audio.mean(axis=1)
+        audio = audio.astype(np.float32)
+        if sample_rate != 16000:
+            audio = self._resample_to_16k(audio, sample_rate)
+
+        effective_beam = beam_size if beam_size is not None else self.config.beam_size
+        effective_language = language or self.config.language
+        logger.info(
+            "[Transcribe] beam_size=%s vad_filter=%s language=%s",
+            effective_beam, self.config.vad_filter, effective_language,
+        )
+        segments, info = self.model.transcribe(
+            audio,
+            beam_size=effective_beam,
+            vad_filter=self.config.vad_filter,
+            language=effective_language,
+        )
+        text = " ".join(seg.text.strip() for seg in segments)
+        return text, info.language
+
+    @staticmethod
+    def _resample_to_16k(audio: np.ndarray, sr: int) -> np.ndarray:
+        from math import gcd
+        from scipy.signal import resample_poly
+        g = gcd(16000, sr)
+        return resample_poly(audio, 16000 // g, sr // g).astype(np.float32)
+
     def _decode_audio(self, audio_bytes: bytes, default_sr: int) -> np.ndarray:
         """Decode WAV bytes to float32 numpy array. Falls back to raw PCM."""
         try:
@@ -91,10 +140,7 @@ class Transcriber:
 
             # Resample to 16kHz if needed
             if sr != 16000:
-                from scipy.signal import resample
-
-                target_len = int(len(audio) * 16000 / sr)
-                audio = resample(audio, target_len).astype(np.float32)
+                audio = self._resample_to_16k(audio, sr)
 
             return audio
         except wave.Error:

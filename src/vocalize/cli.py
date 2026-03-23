@@ -153,6 +153,17 @@ def main() -> None:
             server_proc.wait(timeout=5)
 
 
+def run_live_captions() -> None:
+    _add_file_logging("live-captions")
+    # Silence console — only transcription output (plain print) should appear
+    for h in logging.getLogger().handlers:
+        if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.handlers.RotatingFileHandler):
+            h.setLevel(logging.CRITICAL)
+    from vocalize.captions import main as captions_main
+
+    captions_main()
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "both"
     if cmd == "server":

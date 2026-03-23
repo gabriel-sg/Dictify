@@ -13,11 +13,14 @@ dependencies = [
     "pyperclip>=1.8",
     "httpx>=0.28",
     "pyyaml>=6",
+    "rich>=13",
     "pydantic>=2",
     "pydantic-settings>=2",
     "openai>=1.60",
     "python-multipart>=0.0.9",
     "PySide6>=6.6",
+    "pyaudiowpatch>=0.2.12.8",
+    "scipy>=1.17.1",
 ]
 
 [project.scripts]
@@ -25,6 +28,7 @@ vocalize = "vocalize.cli:main"
 server = "vocalize.cli:run_server"
 client = "vocalize.cli:run_client_ui"
 ui = "vocalize.cli:run_client_ui"
+live-captions = "vocalize.cli:run_live_captions"
 
 [build-system]
 requires = ["hatchling"]

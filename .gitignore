@@ -12,3 +12,4 @@ logs/
 db/
 tmp/
 .claude/settings*
+output/
