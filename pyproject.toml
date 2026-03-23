@@ -1,0 +1,31 @@
+[project]
+name = "vocalize"
+version = "0.1.0"
+description = "Push-to-talk voice-to-text with LLM post-processing"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "faster-whisper>=1.1",
+    "sounddevice>=0.5",
+    "numpy>=1.26",
+    "pynput>=1.7",
+    "pyperclip>=1.8",
+    "httpx>=0.28",
+    "pyyaml>=6",
+    "pydantic>=2",
+    "pydantic-settings>=2",
+    "openai>=1.60",
+    "python-multipart>=0.0.9",
+    "PySide6>=6.6",
+]
+
+[project.scripts]
+vocalize = "vocalize.cli:main"
+server = "vocalize.cli:run_server"
+client = "vocalize.cli:run_client_ui"
+ui = "vocalize.cli:run_client_ui"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

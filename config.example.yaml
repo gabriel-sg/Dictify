@@ -1,0 +1,45 @@
+server:
+  host: "127.0.0.1"
+  port: 9876
+
+whisper:
+  model: "large-v3-turbo"
+  device: "cuda"
+  compute_type: "float16"
+  beam_size: 3
+  vad_filter: true
+  language: "es"  # Default language (overridden per-hotkey: es/en)
+
+hotkey:
+  keys_es: "ctrl+alt+s"  # Hold to record in Spanish (with LLM post-processing)
+  keys_en: "ctrl+alt+e"  # Hold to record in English (with LLM post-processing)
+  keys_raw: "ctrl+alt+z"  # Hold to record without LLM (raw Whisper output only)
+  raw_language: "auto"    # Language for raw hotkey: "es", "en", or "auto" (Whisper detects)
+
+audio:
+  sample_rate: 16000
+  channels: 0       # 0 = auto-detect from device (uses up to 2ch for better SNR)
+  input_gain: 1.0   # Software amplification (1.0 = no change)
+
+pipeline:
+  steps:
+    - type: "llm_rewrite"
+      enabled: true
+      params:
+        prompt_file: "prompts/transcription_editor.md"  # Path relative to repo root
+        temperature: 0.1 # If you want more creative rewriting or translation, increase temperature (e.g., 0.5).
+        max_tokens: 512 # Adjust based on expected input length (e.g., 512 for up to ~4000 characters / ~5 minutes of speech)
+
+llm:
+  provider: "ollama"
+  # model: "llama3.2"
+  # model: "qwen3:4b"
+  # model: "qwen3.5:2b"
+  # model: "qwen3.5:4b"
+  model: "nemotron-3-nano:4b" # 3 GB
+  # model: "schroneko/mistral-nemo-minitron-8b-instruct:q3_k_s"
+  # model: "gemma3:4b"
+  # model: "gemma3:12b"
+  # docker exec ollama ollama pull gemma3:4b
+  base_url: "http://localhost:11434/v1"
+  api_key: "ollama"  # ollama doesn't need a real key but openai client requires one
