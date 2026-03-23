@@ -126,24 +126,30 @@ def main() -> None:
         config = load_config()
         server_proc = subprocess.Popen(
             [sys.executable, "-m", "dictify.cli", "server"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
         )
         try:
-            # Wait for server to be ready via health check polling
+            # Wait for server to be ready via health check polling.
+            # Timeout is generous because server may need to pull an Ollama model first.
             import httpx
 
             server_url = f"http://{config.server.host}:{config.server.port}"
             server_ready = False
-            for _ in range(60):
+            max_wait_s = 600  # 10 minutes
+            poll_interval_s = 1
+            elapsed = 0
+            print("Waiting for server to be ready (model download may take a while)...")
+            for _ in range(max_wait_s):
                 try:
-                    resp = httpx.get(f"{server_url}/api/health", timeout=1)
+                    resp = httpx.get(f"{server_url}/api/health", timeout=2)
                     if resp.status_code == 200:
                         server_ready = True
                         break
-                except httpx.ConnectError:
+                except (httpx.ConnectError, httpx.ConnectTimeout):
                     pass
-                time.sleep(0.5)
+                time.sleep(poll_interval_s)
+                elapsed += poll_interval_s
+                if elapsed % 30 == 0:
+                    print(f"  Still waiting... ({elapsed}s elapsed)")
             if not server_ready:
                 logger.error("Server did not start in time.")
                 sys.exit(1)
