@@ -8,10 +8,10 @@ from PySide6.QtWidgets import (
     QMainWindow, QTabWidget, QSystemTrayIcon, QMenu, QStatusBar,
 )
 
-from vocalize.config import AppConfig
-from vocalize.client_pyside6.debug_store import DebugStore
-from vocalize.client_pyside6.debug_tab import DebugTab
-from vocalize.client_pyside6.settings_tab import SettingsTab
+from dictify.config import AppConfig
+from dictify.client_pyside6.debug_store import DebugStore
+from dictify.client_pyside6.debug_tab import DebugTab
+from dictify.client_pyside6.settings_tab import SettingsTab
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         self._config = config
         self._debug_store = debug_store
 
-        self.setWindowTitle("Vocalize")
+        self.setWindowTitle("Dictify")
         self.setMinimumSize(800, 600)
         self.resize(900, 650)
 
@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
             return
 
         self._tray = QSystemTrayIcon(self)
-        self._tray.setToolTip("Vocalize")
+        self._tray.setToolTip("Dictify")
 
         menu = QMenu()
         show_action = QAction("Show", self)

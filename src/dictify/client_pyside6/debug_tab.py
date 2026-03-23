@@ -9,8 +9,8 @@ from PySide6.QtWidgets import (
     QLabel, QGroupBox, QPlainTextEdit, QHeaderView, QMessageBox,
 )
 
-from vocalize.client_pyside6.audio_player import AudioPlayerWidget
-from vocalize.client_pyside6.debug_store import DebugStore
+from dictify.client_pyside6.audio_player import AudioPlayerWidget
+from dictify.client_pyside6.debug_store import DebugStore
 
 logger = logging.getLogger(__name__)
 

@@ -7,8 +7,8 @@ from pathlib import Path
 
 from openai import AsyncOpenAI
 
-from vocalize.config import CONFIG_PATH, LLMConfig, PipelineConfig, PipelineStepConfig
-from vocalize.models import StepDetail
+from dictify.config import CONFIG_PATH, LLMConfig, PipelineConfig, PipelineStepConfig
+from dictify.models import StepDetail
 
 logger = logging.getLogger(__name__)
 

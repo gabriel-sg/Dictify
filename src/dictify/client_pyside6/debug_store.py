@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from vocalize.models import StepDetail
+from dictify.models import StepDetail
 
 logger = logging.getLogger(__name__)
 

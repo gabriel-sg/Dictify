@@ -7,7 +7,7 @@ import wave
 import numpy as np
 from faster_whisper import WhisperModel
 
-from vocalize.config import WhisperConfig
+from dictify.config import WhisperConfig
 
 logger = logging.getLogger(__name__)
 

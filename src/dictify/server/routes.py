@@ -5,7 +5,7 @@ import time
 
 from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 
-from vocalize.models import HealthResponse, TranscribeResponse
+from dictify.models import HealthResponse, TranscribeResponse
 
 router = APIRouter(prefix="/api")
 

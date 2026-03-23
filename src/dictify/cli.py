@@ -8,7 +8,7 @@ import sys
 import time
 from pathlib import Path
 
-from vocalize.config import CONFIG_PATH, load_config
+from dictify.config import CONFIG_PATH, load_config
 
 LOG_DIR = Path(__file__).resolve().parent.parent.parent / "logs"
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
@@ -81,7 +81,7 @@ def run_server() -> None:
         s.type == "llm_rewrite" and s.enabled for s in config.pipeline.steps
     )
     if llm_steps_enabled:
-        from vocalize.server.ollama import ensure_model
+        from dictify.server.ollama import ensure_model
 
         ok = ensure_model(config.llm.base_url, config.llm.model)
         if not ok:
@@ -91,7 +91,7 @@ def run_server() -> None:
                 config.llm.model,
             )
 
-    from vocalize.server.app import create_app
+    from dictify.server.app import create_app
 
     app = create_app(config)
     uvicorn.run(app, host=config.server.host, port=config.server.port)
@@ -99,15 +99,15 @@ def run_server() -> None:
 
 def run_client_ui() -> None:
     _add_file_logging("client-ui")
-    from vocalize.client_pyside6.app import VocalizeApp
+    from dictify.client_pyside6.app import DictifyApp
 
     config = load_config()
-    app = VocalizeApp(config)
+    app = DictifyApp(config)
     app.run()
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Vocalize")
+    parser = argparse.ArgumentParser(description="Dictify")
     parser.add_argument(
         "command",
         nargs="?",
@@ -125,7 +125,7 @@ def main() -> None:
         # Launch server as subprocess, then run client
         config = load_config()
         server_proc = subprocess.Popen(
-            [sys.executable, "-m", "vocalize.cli", "server"],
+            [sys.executable, "-m", "dictify.cli", "server"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -159,7 +159,7 @@ def run_live_captions() -> None:
     for h in logging.getLogger().handlers:
         if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.handlers.RotatingFileHandler):
             h.setLevel(logging.CRITICAL)
-    from vocalize.captions import main as captions_main
+    from dictify.captions import main as captions_main
 
     captions_main()
 

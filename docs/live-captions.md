@@ -196,4 +196,4 @@ Here is a transcript of a meeting. Summarise the key points and action items.
 - Windows 10/11 (WASAPI loopback is Windows-only)
 - `pyaudiowpatch` — installed automatically via `uv sync`
 - Whisper model on GPU — configured in `config.yaml` under `whisper.model` (default: `large-v3-turbo`)
-- The Vocalize server does **not** need to be running — live captions loads Whisper directly in-process
+- The Dictify server does **not** need to be running — live captions loads Whisper directly in-process

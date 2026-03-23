@@ -4,7 +4,7 @@ import logging
 
 import httpx
 
-from vocalize.models import TranscribeResponse
+from dictify.models import TranscribeResponse
 
 logger = logging.getLogger(__name__)
 

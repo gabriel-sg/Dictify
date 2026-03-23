@@ -12,14 +12,14 @@ from functools import partial
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QObject, QTimer, Signal
 
-from vocalize.config import AppConfig
-from vocalize.client_pyside6.api_client import ApiClient
-from vocalize.client_pyside6.debug_store import DebugStore, DebugInteraction
-from vocalize.client_pyside6.hotkey import HotkeyListener
-from vocalize.client_pyside6.main_window import MainWindow
-from vocalize.client_pyside6.overlay import OverlayWidget
-from vocalize.client_pyside6.recorder import AudioRecorder
-from vocalize.client_pyside6.typer import TextTyper, get_foreground_window
+from dictify.config import AppConfig
+from dictify.client_pyside6.api_client import ApiClient
+from dictify.client_pyside6.debug_store import DebugStore, DebugInteraction
+from dictify.client_pyside6.hotkey import HotkeyListener
+from dictify.client_pyside6.main_window import MainWindow
+from dictify.client_pyside6.overlay import OverlayWidget
+from dictify.client_pyside6.recorder import AudioRecorder
+from dictify.client_pyside6.typer import TextTyper, get_foreground_window
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class _AppSignals(QObject):
     set_overlay = Signal(str)
 
 
-class VocalizeApp:
+class DictifyApp:
     def __init__(self, config: AppConfig):
         self.config = config
         server_url = f"http://{config.server.host}:{config.server.port}"
@@ -62,7 +62,7 @@ class VocalizeApp:
         crash_log = open("logs/client-ui-crash.log", "a")
         faulthandler.enable(file=crash_log)
 
-        logger.info("Starting Vocalize PySide6 client...")
+        logger.info("Starting Dictify PySide6 client...")
 
         # Start asyncio event loop in background thread
         self._loop = asyncio.new_event_loop()
@@ -74,7 +74,7 @@ class VocalizeApp:
 
         # Create Qt application (must be in main thread)
         self._qt_app = QApplication(sys.argv)
-        self._qt_app.setApplicationName("Vocalize")
+        self._qt_app.setApplicationName("Dictify")
 
         # Allow Ctrl+C from terminal to quit
         signal.signal(signal.SIGINT, lambda *_: self._qt_app.quit())

@@ -6,9 +6,9 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI
 
-from vocalize.config import AppConfig, load_config
-from vocalize.server.pipeline import Pipeline
-from vocalize.server.transcriber import Transcriber
+from dictify.config import AppConfig, load_config
+from dictify.server.pipeline import Pipeline
+from dictify.server.transcriber import Transcriber
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +31,10 @@ def create_app(config: AppConfig | None = None) -> FastAPI:
     if config is None:
         config = load_config()
 
-    app = FastAPI(title="Vocalize", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Dictify", version="0.1.0", lifespan=lifespan)
     app.state.config = config
 
-    from vocalize.server.routes import router
+    from dictify.server.routes import router
     app.include_router(router)
 
     return app

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Project Is
 
-Vocalize — push-to-talk voice-to-text desktop app. User holds a hotkey, speaks, releases, and transcribed+post-processed text is typed at the cursor position. Client-server architecture (FastAPI) for potential cloud/network deployment.
+Dictify — push-to-talk voice-to-text desktop app. User holds a hotkey, speaks, releases, and transcribed+post-processed text is typed at the cursor position. Client-server architecture (FastAPI) for potential cloud/network deployment.
 
 ## Commands
 
@@ -13,7 +13,7 @@ uv sync                    # Install/update dependencies
 uv run server              # Start API server (loads Whisper model on GPU)
 uv run client              # Start GUI client (PySide6 with settings + debug)
 uv run ui                  # Start GUI client (alias)
-uv run vocalize            # Start both (server as subprocess + GUI client)
+uv run dictify            # Start both (server as subprocess + GUI client)
 docker compose up -d       # Start Ollama container (LLM post-processing)
 ```
 
@@ -27,14 +27,14 @@ curl -X POST http://localhost:9876/api/transcribe -F "audio=@test.wav"
 
 **Two-process split:** server (ML inference) and client (desktop UX) communicate over HTTP. Server can run remotely/in Docker; client must run on the desktop for hotkey capture and text insertion.
 
-### Server (`src/vocalize/server/`)
+### Server (`src/dictify/server/`)
 - `app.py` — FastAPI factory with lifespan that loads Whisper model into GPU VRAM at startup.
 - `transcriber.py` — Wraps faster-whisper (CTranslate2). Decodes WAV/PCM → float32 numpy → transcribe. Model stays loaded between requests. Handles resampling to 16kHz if needed.
 - `pipeline.py` — Sequential chain of `PipelineStep` subclasses. Each step: `async process(text) -> text`. Built-in step: `LLMRewrite` (Ollama via OpenAI-compatible API, handles cleanup + filler word removal). Returns `StepDetail` with timing and I/O for each step.
 - `routes.py` — `POST /api/transcribe` (multipart WAV upload + optional `language` field, max 10 MB), `GET /api/health`. Transcription runs in thread pool via `asyncio.to_thread()`. Response includes per-step details (`steps`, `whisper_time_ms`, `whisper_model`).
 - `ollama.py` — Ollama model management: checks availability, auto-pulls missing models via Ollama native API. Used at server startup to auto-pull missing models.
 
-### Client (`src/vocalize/client_pyside6/`)
+### Client (`src/dictify/client_pyside6/`)
 Full PySide6 desktop app with settings, debug inspector, and system tray.
 - `app.py` — Orchestrator. Qt main thread runs the event loop; asyncio runs in a background thread. Thread-safe bridge via `_AppSignals` (Qt signals). Manages hotkeys, recording flow, and debug store. Uses `faulthandler` for native crash logging.
 - `main_window.py` — `QMainWindow` with tab widget (Settings, Debug), status bar, system tray icon with context menu. Catppuccin Mocha dark theme via QSS.

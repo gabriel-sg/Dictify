@@ -8,7 +8,7 @@ import wave
 import numpy as np
 import sounddevice as sd
 
-from vocalize.config import AudioConfig
+from dictify.config import AudioConfig
 
 logger = logging.getLogger(__name__)
 

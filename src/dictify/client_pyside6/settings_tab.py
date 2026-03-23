@@ -12,9 +12,9 @@ from PySide6.QtWidgets import (
 
 import numpy as np
 
-from vocalize.config import AppConfig, AudioConfig, save_config
-from vocalize.client_pyside6.recorder import AudioRecorder
-from vocalize.client_pyside6.audio_player import AudioPlayerWidget
+from dictify.config import AppConfig, AudioConfig, save_config
+from dictify.client_pyside6.recorder import AudioRecorder
+from dictify.client_pyside6.audio_player import AudioPlayerWidget
 
 logger = logging.getLogger(__name__)
 

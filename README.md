@@ -1,4 +1,4 @@
-# Vocalize
+# Dictify
 
 Push-to-talk voice-to-text for your desktop. Hold a hotkey, speak, release — your words appear as text at the cursor position, cleaned up by an LLM.
 
@@ -47,8 +47,8 @@ A small overlay appears on your screen: red while recording, orange while proces
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/gabriel-sg/vocalize.git
-cd vocalize
+git clone https://github.com/gabriel-sg/dictify.git
+cd dictify
 uv sync
 ```
 
@@ -118,7 +118,7 @@ The server auto-pulls the configured Ollama model on first startup.
 
 ```bash
 # Start server + GUI client together (recommended)
-uv run vocalize
+uv run dictify
 
 # Or start components separately (e.g. server on another machine)
 uv run server   # server only

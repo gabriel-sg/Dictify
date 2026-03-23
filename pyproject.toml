@@ -1,5 +1,5 @@
 [project]
-name = "vocalize"
+name = "dictify"
 version = "0.1.0"
 description = "Push-to-talk voice-to-text with LLM post-processing"
 requires-python = ">=3.11"
@@ -24,11 +24,11 @@ dependencies = [
 ]
 
 [project.scripts]
-vocalize = "vocalize.cli:main"
-server = "vocalize.cli:run_server"
-client = "vocalize.cli:run_client_ui"
-ui = "vocalize.cli:run_client_ui"
-live-captions = "vocalize.cli:run_live_captions"
+dictify = "dictify.cli:main"
+server = "dictify.cli:run_server"
+client = "dictify.cli:run_client_ui"
+ui = "dictify.cli:run_client_ui"
+live-captions = "dictify.cli:run_live_captions"
 
 [build-system]
 requires = ["hatchling"]
