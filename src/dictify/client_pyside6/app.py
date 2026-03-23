@@ -141,7 +141,6 @@ class DictifyApp:
             on_release=self._on_record_stop,
         )
         raw_lang = self.config.hotkey.raw_language
-        raw_lang = None if raw_lang == "auto" else raw_lang
         self._hotkey_raw = HotkeyListener(
             self.config.hotkey.keys_raw,
             on_press=partial(self._on_record_start, raw_lang, True),

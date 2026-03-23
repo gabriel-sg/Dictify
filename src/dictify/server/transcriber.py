@@ -51,7 +51,14 @@ class Transcriber:
 
         audio = self._decode_audio(audio_bytes, sample_rate)
 
-        effective_language = language or self.config.language
+        # Prioritize passed language. If "auto", tell Whisper to detect (None).
+        # Otherwise fall back to config default.
+        requested_lang = language if language is not None else self.config.language
+        if requested_lang == "auto":
+            effective_language = None
+        else:
+            effective_language = requested_lang
+
         logger.info(
             "[Transcribe] beam_size=%s vad_filter=%s language=%s",
             self.config.beam_size, self.config.vad_filter, effective_language,
@@ -94,7 +101,15 @@ class Transcriber:
             audio = self._resample_to_16k(audio, sample_rate)
 
         effective_beam = beam_size if beam_size is not None else self.config.beam_size
-        effective_language = language or self.config.language
+        
+        # Prioritize passed language. If "auto", tell Whisper to detect (None).
+        # Otherwise fall back to config default.
+        requested_lang = language if language is not None else self.config.language
+        if requested_lang == "auto":
+            effective_language = None
+        else:
+            effective_language = requested_lang
+
         logger.info(
             "[Transcribe] beam_size=%s vad_filter=%s language=%s",
             effective_beam, self.config.vad_filter, effective_language,
